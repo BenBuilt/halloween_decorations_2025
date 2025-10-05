@@ -249,7 +249,7 @@ document.getElementById("submitBtn").addEventListener("click", async () => {
 
   try {
     await fetch(FORM_URL, { method: "POST", mode: "no-cors", body: formData });
-    alert("Location sent! Check the Pending spreadsheet.");
+    alert("Location sent! Your selection will be added after approval.");
     document.getElementById("description").value = "";
     document.getElementById("submittedBy").value = "";
     document.getElementById("address").value = "";
