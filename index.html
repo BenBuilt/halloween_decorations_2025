@@ -163,8 +163,8 @@ header p {
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
 /* ==== CONFIG ==== */
-const FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSdgCImO8bsN1qFCY5fLMp_eDY78W65N6Imcxs_-5SSS8iZc3g/formResponse"; // Pending
-const SHEET_URL = "https://docs.google.com/spreadsheets/d/1P5aKelejpBrCTV_3tycCM3RukUFjWQmxH4IdIZVHO8I/gviz/tq?tqx=out:json&sheet=Approved"; // Approved
+const FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSfmJ4aMSEYq-sT6aLl288_8KmgRVkV3stg-Qlpbcx-MKQtR6A/formResponse"; // Pending
+const SHEET_URL = "https://docs.google.com/spreadsheets/d/1XXYosjOR4jTpBOlUFwPn2l3vhnemOh5REtoMXqW-ymU/gviz/tq?tqx=out:json&sheet=Approved"; // Approved
 
 /* ==== DRAWER TOGGLE ==== */
 const drawer = document.getElementById('drawer');
@@ -241,11 +241,11 @@ document.getElementById("submitBtn").addEventListener("click", async () => {
   const lng = marker.getLatLng().lng;
 
   const formData = new FormData();
-  formData.append("entry.1642471479", description); // replace with your Form entry IDs
-  formData.append("entry.1671409061", submittedBy);
-  formData.append("entry.567850449", address);
-  formData.append("entry.645736728", lat);
-  formData.append("entry.418865114", lng);
+  formData.append("entry.871862830", description); // replace with your Form entry IDs
+  formData.append("entry.956493276", submittedBy);
+  formData.append("entry.1089082775", address);
+  formData.append("entry.1905521699", lat);
+  formData.append("entry.408058304", lng);
 
   try {
     await fetch(FORM_URL, { method: "POST", mode: "no-cors", body: formData });
