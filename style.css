@@ -21,32 +21,33 @@ header {
 #drawer {
   position: fixed;
   top: 0;
-  left: -320px;
+  left: -300px;
   width: 300px;
   height: 100%;
   background-color: #1a1a1a;
   color: #ff7518;
-  box-shadow: 4px 0 10px rgba(255, 117, 24, 0.3);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+  transition: background 0.2s ease, transform 0.2s ease;
   padding: 1rem;
-  transition: left 0.3s ease;
   overflow-y: auto;
-  z-index: 10;
+  z-index: 1000;
 }
 
 #drawer.open {
   left: 0;
 }
 
-#toggleDrawer {
+#toggleDrawer:hover {
   position: fixed;
   top: 20px;
   left: 20px;
-  background: #ff7518;
+  background: #ff9c3d;
+  transform: scale(1.05);
   border: none;
   color: black;
   padding: 10px 16px;
   border-radius: 8px;
   cursor: pointer;
   font-weight: bold;
-  z-index: 11;
+  z-index: 1100;
 }
