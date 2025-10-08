@@ -145,12 +145,19 @@ const FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSfmJ4aMSEYq-sT6aLl288
 const SHEET_URL = "https://docs.google.com/spreadsheets/d/1XXYosjOR4jTpBOlUFwPn2l3vhnemOh5REtoMXqW-ymU/gviz/tq?tqx=out:json&gid=631160791"; 
 
 // ==== CUSTOM ICONS ====
+<a href="https://www.flaticon.com/free-icons/pumpkin" title="pumpkin icons">Pumpkin icons created by Freepik - Flaticon</a>
 const pumpkinIcon = L.icon({
-  iconUrl: 'https://upload.wikimedia.org/wikipedia/commons/4/49/Orange_pumpkin_icon.png',
-  iconSize: [38, 38],
-  iconAnchor: [19, 38],
-  popupAnchor: [0, -38]
+  iconUrl: 'images/pumpkin-icon.png', // Path to your pumpkin icon
+  iconSize: [32, 32], // Adjust size as needed
+  iconAnchor: [16, 32], // Anchor point
+  popupAnchor: [0, -32] // Popup position
 });
+
+// When adding approved pins
+L.marker([lat, lng], { icon: pumpkinIcon })
+  .addTo(map)
+  .bindPopup("Approved Pin Description");
+
 
 const selectedIcon = L.icon({
   iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684908.png',
