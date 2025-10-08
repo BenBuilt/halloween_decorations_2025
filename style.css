@@ -1,3 +1,4 @@
+/* ==== GLOBAL STYLES ==== */
 body {
   margin: 0;
   font-family: "Creepster", cursive, sans-serif;
@@ -13,11 +14,14 @@ header {
   background-color: #1a1a1a;
 }
 
+/* ==== MAP ==== */
 #map {
   height: 100vh;
   width: 100%;
+  z-index: 0;
 }
 
+/* ==== DRAWER ==== */
 #drawer {
   position: fixed;
   top: 0;
@@ -26,10 +30,10 @@ header {
   height: 100%;
   background-color: #1a1a1a;
   color: #ff7518;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.5);
-  transition: background 0.2s ease, transform 0.2s ease;
+  box-shadow: 4px 0 10px rgba(255, 117, 24, 0.5);
   padding: 1rem;
   overflow-y: auto;
+  transition: left 0.3s ease;
   z-index: 1000;
 }
 
@@ -37,17 +41,73 @@ header {
   left: 0;
 }
 
-#toggleDrawer:hover {
+/* ==== DRAWER FORM FIELDS ==== */
+#drawer input {
+  width: 100%;
+  padding: 8px;
+  margin: 8px 0;
+  background: #0d0d0d;
+  color: #ff7518;
+  border: 1px solid #ff7518;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+#drawer button#submitBtn {
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  background: #ff7518;
+  color: black;
+  font-weight: bold;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+#drawer button#submitBtn:hover {
+  background: black;
+  color: #ff7518;
+  border: 1px solid #ff7518;
+}
+
+/* ==== TOGGLE BUTTON ==== */
+#toggleDrawer {
   position: fixed;
   top: 20px;
   left: 20px;
-  background: #ff9c3d;
-  transform: scale(1.05);
-  border: none;
+  background: #ff7518;
   color: black;
   padding: 10px 16px;
   border-radius: 8px;
+  border: none;
   cursor: pointer;
   font-weight: bold;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+  transition: background 0.2s ease, transform 0.2s ease;
   z-index: 1100;
+}
+
+#toggleDrawer:hover {
+  background: #ff9c3d;
+  transform: scale(1.05);
+}
+
+/* ==== LABELS ==== */
+#drawer label {
+  display: block;
+  margin-top: 10px;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+/* Optional scrollbar style for drawer */
+#drawer::-webkit-scrollbar {
+  width: 8px;
+}
+
+#drawer::-webkit-scrollbar-thumb {
+  background-color: #ff7518;
+  border-radius: 4px;
 }
