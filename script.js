@@ -19,7 +19,7 @@ const selectedIcon = L.icon({
 
 /* ==== DRAWER TOGGLE ==== */
 const drawer = document.getElementById('drawer');
-const toggleBtn = document.getElementById('drawerToggle');
+const toggleBtn = document.getElementById('toggleDrawer'); // ✅ matches HTML
 
 toggleBtn.addEventListener('click', () => {
   drawer.classList.toggle('open');
@@ -27,6 +27,7 @@ toggleBtn.addEventListener('click', () => {
     ? '✖ Close'
     : 'Submit a New House!';
 });
+
 
 
 /* ==== INIT MAP ==== */
@@ -80,7 +81,8 @@ loadApprovedPins();
 
 
 /* ==== SUBMIT HANDLER ==== */
-document.getElementById("submitBtn").addEventListener("click", async () => {
+document.getElementById("submit").addEventListener("click", async () => { // ✅ matches HTML
+
   const description = document.getElementById("description").value.trim();
   const submittedBy = document.getElementById("submittedBy").value.trim();
   const address = document.getElementById("address").value.trim();
