@@ -15,6 +15,7 @@ body {
   color: #fff;
   margin: 0;
   padding: 0;
+  overflow: hidden;
 }
 
 header {
@@ -33,7 +34,7 @@ header h1 {
 
 header p {
   margin: 5px 0 0 0;
-  font-size: 1em;
+  font-size: 0.9em;
   color: #ffb347;
 }
 
@@ -62,12 +63,6 @@ header p {
   margin-top: 0;
 }
 
-#drawer p {
-  color: #ffb347;
-  font-size: 0.9em;
-}
-
-/* Input fields */
 #drawer input[type="text"] {
   width: 100%;
   padding: 8px;
@@ -114,21 +109,8 @@ header p {
 /* ==== MAP ==== */
 #map {
   width: 100%;
-  height: calc(100vh - 80px);
+  height: 100vh;
   z-index: 0;
-}
-
-/* Map overlay for instructions */
-#mapOverlay {
-  position: fixed;
-  top: 70px;
-  right: 20px;
-  background-color: rgba(0,0,0,0.7);
-  padding: 10px 15px;
-  border-radius: 5px;
-  color: #ffb347;
-  font-size: 0.9em;
-  z-index: 1000;
 }
 </style>
 </head>
@@ -136,21 +118,18 @@ header p {
 
 <header>
   <h1>🎃 Local Halloween Decorations 🎃</h1>
-  <p>Browse the map to find spooky halloween decorations in your area! Click a pin for details.</p>
+  <p>Browse the map to find spooky Halloween decorations in your area!</p>
   <p>Want to contribute? Click 'Submit a New House!' to add to the list. All submissions are reviewed prior to appearing.</p>
 </header>
 
-<!-- Drawer Toggle Button -->
+<!-- Drawer Toggle -->
 <button id="drawerToggle">Submit a New House!</button>
 
-<!-- Map Overlay Instructions -->
-<!-- <div id="mapOverlay">Click pins to view details. Open the left drawer to add a new house!</div> -->
-
-<!-- Drawer for Submission -->
+<!-- Drawer Form -->
 <div id="drawer">
   <h2>Submit a House</h2>
   <p>Drop a pin on the map, then fill out the fields below to submit.</p>
-  <input id="description" type="text" placeholder="Description (e.g. lights, spooky theme)">
+  <input id="description" type="text" placeholder="Description (e.g., lights, spooky theme)">
   <input id="submittedBy" type="text" placeholder="Your Name">
   <input id="address" type="text" placeholder="Address (optional)">
   <button id="submitBtn">Send Location</button>
@@ -162,114 +141,112 @@ header p {
 <!-- Leaflet JS -->
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
-/* ==== CONFIG ==== */
-const FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSfmJ4aMSEYq-sT6aLl288_8KmgRVkV3stg-Qlpbcx-MKQtR6A/formResponse"; // Pending
-const SHEET_URL = "https://docs.google.com/spreadsheets/d/1XXYosjOR4jTpBOlUFwPn2l3vhnemOh5REtoMXqW-ymU/gviz/tq?tqx=out:json&gid=631160791"; // Approved
+document.addEventListener("DOMContentLoaded", () => {
+  /* ==== CONFIG ==== */
+  const FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSfmJ4aMSEYq-sT6aLl288_8KmgRVkV3stg-Qlpbcx-MKQtR6A/formResponse";
+  const SHEET_URL = "https://docs.google.com/spreadsheets/d/1XXYosjOR4jTpBOlUFwPn2l3vhnemOh5REtoMXqW-ymU/gviz/tq?tqx=out:json&gid=631160791";
+
+  /* ==== ICONS ==== */
+  const pumpkinIcon = L.icon({
+    iconUrl: 'https://cdn-icons-png.flaticon.com/512/992/992703.png',
+    iconSize: [38, 38],
+    iconAnchor: [19, 38],
+    popupAnchor: [0, -38]
+  });
 
   /* ==== DRAWER TOGGLE ==== */
-const drawer = document.getElementById('drawer');
-const toggleBtn = document.getElementById('drawerToggle');
+  const toggleBtn = document.getElementById('drawerToggle');
+  const drawer = document.getElementById('drawer');
+  toggleBtn.addEventListener('click', () => {
+    drawer.classList.toggle('open');
+    toggleBtn.textContent = drawer.classList.contains('open') ? '✖ Close' : 'Submit a New House!';
+  });
 
-toggleBtn.addEventListener('click', () => {
-  drawer.classList.toggle('open');
+  /* ==== INIT MAP ==== */
+  const map = L.map('map').setView([39.5, -98.35], 4);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
+  }).addTo(map);
 
-  // Change button text depending on drawer state
-  if (drawer.classList.contains('open')) {
-    toggleBtn.textContent = '✖'; // X to close
-  } else {
-    toggleBtn.textContent = 'Submit a New House'; // original text
+  let selectedMarker = null;
+
+  // Click map to place selected pin (normal pin)
+  map.on('click', e => {
+    if (selectedMarker) map.removeLayer(selectedMarker);
+    selectedMarker = L.marker(e.latlng).addTo(map);
+    selectedMarker.bindPopup("🎃 Selected location").openPopup();
+  });
+
+  /* ==== LOAD APPROVED PINS ==== */
+  async function loadApprovedPins() {
+    try {
+      const response = await fetch(SHEET_URL);
+      const text = await response.text();
+      const match = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);/);
+      if (!match) throw new Error("Invalid Google Sheets response format");
+      const data = JSON.parse(match[1]);
+      const rows = data.table.rows;
+
+      rows.forEach(row => {
+        const name = row.c[1]?.v || "";
+        const description = row.c[2]?.v || "";
+        const address = row.c[3]?.v || "";
+        const lat = row.c[4]?.v ? parseFloat(row.c[4].v) : null;
+        const lng = row.c[5]?.v ? parseFloat(row.c[5].v) : null;
+
+        if (lat && lng) {
+          L.marker([lat, lng], { icon: pumpkinIcon })
+            .addTo(map)
+            .bindPopup(`<b>${description}</b><br>${address}<br>Submitted by: ${name}`);
+        }
+      });
+    } catch (err) {
+      console.error("Failed to load pins:", err);
+    }
   }
-});
+  loadApprovedPins();
 
+  /* ==== SUBMIT HANDLER ==== */
+  document.getElementById("submitBtn").addEventListener("click", async () => {
+    const description = document.getElementById("description").value.trim();
+    const submittedBy = document.getElementById("submittedBy").value.trim();
+    const address = document.getElementById("address").value.trim();
 
-/* ==== INIT MAP ==== */
-const map = L.map('map').setView([39.5, -98.35], 4);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: '&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
-}).addTo(map);
+    if (!description || !submittedBy) {
+      alert("Please fill in Description and Your Name.");
+      return;
+    }
+    if (!selectedMarker) {
+      alert("Drop a pin on the map first!");
+      return;
+    }
 
-let marker = null;
-map.on('click', e => {
-  if (marker) map.removeLayer(marker);
-  marker = L.marker(e.latlng).addTo(map);
-  marker.bindPopup("🎃 Selected location").openPopup();
-});
+    const lat = selectedMarker.getLatLng().lat;
+    const lng = selectedMarker.getLatLng().lng;
 
-/* ==== LOAD APPROVED PINS ==== */
+    const formData = new FormData();
+    formData.append("entry.871862830", description);
+    formData.append("entry.956493276", submittedBy);
+    formData.append("entry.1089082775", address);
+    formData.append("entry.1905521699", lat);
+    formData.append("entry.408058304", lng);
 
-async function loadApprovedPins() {
-  try {
-    const response = await fetch(SHEET_URL);
-    const text = await response.text();
+    try {
+      await fetch(FORM_URL, { method: "POST", mode: "no-cors", body: formData });
+      alert("Location sent! Your selection will be added after approval.");
 
-    // Google Sheets JSON is wrapped in a function call, remove that
-    const jsonText = text.match(/google\.visualization\.Query\.setResponse\((.*)\);/s)[1];
-    const data = JSON.parse(jsonText);
-
-    const rows = data.table.rows;
-
-    rows.forEach(row => {
-      const name = row.c[1]?.v || "";          // Your Name
-      const description = row.c[2]?.v || "";   // Description
-      const address = row.c[3]?.v || "";       // Address
-      const lat = row.c[4]?.v ? parseFloat(row.c[4].v) : null;
-      const lng = row.c[5]?.v ? parseFloat(row.c[5].v) : null;
-
-      if (lat && lng) {
-        L.marker([lat, lng]).addTo(map)
-          .bindPopup(`<b>${description}</b><br>${address}<br>Submitted by: ${name}`);
-      }
-    });
-
-  } catch(err) {
-    console.error("Failed to load pins:", err);
-  }
-}
-
-// Call it after map initialization
-loadApprovedPins();
-
-
-
-/* ==== SUBMIT HANDLER ==== */
-document.getElementById("submitBtn").addEventListener("click", async () => {
-  const description = document.getElementById("description").value.trim();
-  const submittedBy = document.getElementById("submittedBy").value.trim();
-  const address = document.getElementById("address").value.trim();
-
-  if (!description || !submittedBy) {
-    alert("Please fill in Description and Your Name.");
-    return;
-  }
-  if (!marker) {
-    alert("Drop a pin on the map first!");
-    return;
-  }
-
-  const lat = marker.getLatLng().lat;
-  const lng = marker.getLatLng().lng;
-
-  const formData = new FormData();
-  formData.append("entry.871862830", description); // replace with your Form entry IDs
-  formData.append("entry.956493276", submittedBy);
-  formData.append("entry.1089082775", address);
-  formData.append("entry.1905521699", lat);
-  formData.append("entry.408058304", lng);
-
-  try {
-    await fetch(FORM_URL, { method: "POST", mode: "no-cors", body: formData });
-    alert("Location sent! Your selection will be added after approval.");
-    document.getElementById("description").value = "";
-    document.getElementById("submittedBy").value = "";
-    document.getElementById("address").value = "";
-    if(marker) map.removeLayer(marker);
-    marker = null;
-  } catch(err) {
-    console.error("Submission failed:", err);
-    alert("Error connecting to Google Form.");
-  }
+      // Reset form and remove selected marker
+      document.getElementById("description").value = "";
+      document.getElementById("submittedBy").value = "";
+      document.getElementById("address").value = "";
+      if (selectedMarker) map.removeLayer(selectedMarker);
+      selectedMarker = null;
+    } catch (err) {
+      console.error("Submission failed:", err);
+      alert("Error connecting to Google Form.");
+    }
+  });
 });
 </script>
-
 </body>
 </html>
