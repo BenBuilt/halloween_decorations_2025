@@ -2,6 +2,20 @@
 const FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSfmJ4aMSEYq-sT6aLl288_8KmgRVkV3stg-Qlpbcx-MKQtR6A/formResponse"; // Form submission
 const SHEET_URL = "https://docs.google.com/spreadsheets/d/1XXYosjOR4jTpBOlUFwPn2l3vhnemOh5REtoMXqW-ymU/gviz/tq?tqx=out:json&gid=631160791"; // Approved sheet
 
+// ==== CUSTOM ICONS ====
+const pumpkinIcon = L.icon({
+  iconUrl: 'https://cdn-icons-png.flaticon.com/512/992/992703.png', // pumpkin image
+  iconSize: [38, 38], // size of the icon
+  iconAnchor: [19, 38], // point of the icon that corresponds to marker's location
+  popupAnchor: [0, -38] // where the popup should appear relative to the icon
+});
+
+const selectedIcon = L.icon({
+  iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684908.png', // red pin for selected location
+  iconSize: [30, 30],
+  iconAnchor: [15, 30],
+  popupAnchor: [0, -28]
+});
 
 /* ==== DRAWER TOGGLE ==== */
 const drawer = document.getElementById('drawer');
@@ -24,9 +38,10 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 let marker = null;
 map.on('click', e => {
   if (marker) map.removeLayer(marker);
-  marker = L.marker(e.latlng).addTo(map);
+  marker = L.marker(e.latlng, { icon: selectedIcon }).addTo(map);
   marker.bindPopup("🎃 Selected location").openPopup();
 });
+
 
 
 /* ==== LOAD APPROVED PINS ==== */
@@ -50,7 +65,7 @@ async function loadApprovedPins() {
       const lng = row.c[5]?.v ? parseFloat(row.c[5].v) : null;
 
       if (lat && lng) {
-        L.marker([lat, lng]).addTo(map)
+        L.marker([lat, lng], { icon: pumpkinIcon }).addTo(map)
           .bindPopup(`<b>${description}</b><br>${address}<br>Submitted by: ${name}`);
       }
     });
