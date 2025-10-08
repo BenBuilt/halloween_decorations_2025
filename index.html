@@ -1,275 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🎃 Halloween Map of Decorations 🎃</title>
-
-<!-- Leaflet CSS -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
-<style>
-/* ==== BODY & HEADER ==== */
-body {
-  font-family: 'Comic Sans MS', cursive, sans-serif;
-  background-color: #1a1a1a;
-  color: #fff;
-  margin: 0;
-  padding: 0;
-}
-
-header {
-  background-color: #000;
-  border-bottom: 4px solid orange;
-  padding: 15px 20px;
-  text-align: center;
-}
-
-header h1 {
-  margin: 0;
-  color: orange;
-  text-shadow: 2px 2px #550000;
-  font-size: 1.5em;
-}
-
-header p {
-  margin: 5px 0 0 0;
-  font-size: 1em;
-  color: #ffb347;
-}
-
-/* ==== DRAWER ==== */
-#drawer {
-  position: fixed;
-  top: 0;
-  left: -320px;
-  width: 320px;
-  height: 100%;
-  background-color: #111;
-  border-right: 3px solid orange;
-  padding: 20px;
-  box-sizing: border-box;
-  transition: left 0.3s ease;
-  z-index: 1000;
-  overflow-y: auto;
-}
-
-#drawer.open {
-  left: 0;
-}
-
-#drawer h2 {
-  color: orange;
-  margin-top: 0;
-}
-
-#drawer p {
-  color: #ffb347;
-  font-size: 0.9em;
-}
-
-/* Input fields */
-#drawer input[type="text"] {
-  width: 100%;
-  padding: 8px;
-  margin: 5px 0 15px 0;
-  border: 2px solid orange;
-  border-radius: 5px;
-  background-color: #333;
-  color: #fff;
-}
-
-/* Submit button */
-#submitBtn {
-  width: 100%;
-  padding: 12px;
-  background-color: orange;
-  border: 2px solid #fff;
-  border-radius: 5px;
-  font-weight: bold;
-  cursor: pointer;
-  color: #000;
-  transition: all 0.2s ease-in-out;
-}
-
-#submitBtn:hover {
-  background-color: #fff;
-  color: orange;
-  transform: scale(1.05);
-}
-
-/* Drawer toggle button */
-#drawerToggle {
-  position: fixed;
-  top: 20px;
-  left: 20px;
-  background-color: orange;
-  color: black;
-  padding: 10px 15px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  z-index: 1100;
-}
-
-/* ==== MAP ==== */
-#map {
-  width: 100%;
-  height: calc(100vh - 80px);
-  z-index: 0;
-}
-
-/* Map overlay for instructions */
-#mapOverlay {
-  position: fixed;
-  top: 70px;
-  right: 20px;
-  background-color: rgba(0,0,0,0.7);
-  padding: 10px 15px;
-  border-radius: 5px;
-  color: #ffb347;
-  font-size: 0.9em;
-  z-index: 1000;
-}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Haunted Map Finder</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap" async defer></script>
 </head>
 <body>
+  <header>
+    <h1>🎃 Haunted Map Finder</h1>
+  </header>
 
-<header>
-  <h1>🎃 Local Halloween Decorations 🎃</h1>
-  <p>Browse the map to find spooky halloween decorations in your area! Click a pin for details.</p>
-  <p>Want to contribute? Click 'Submit a New House!' to add to the list. All submissions are reviewed prior to appearing.</p>
-</header>
+  <button id="toggleDrawer">Add a Location</button>
 
-<!-- Drawer Toggle Button -->
-<button id="drawerToggle">Submit a New House!</button>
+  <div id="drawer">
+    <h2>Add Your Spooky Spot</h2>
+    <label>Name: <input type="text" id="name" /></label>
+    <label>Description: <input type="text" id="description" /></label>
+    <label>Address: <input type="text" id="address" /></label>
+    <button id="submit">Submit</button>
+  </div>
 
-<!-- Map Overlay Instructions -->
-<!-- <div id="mapOverlay">Click pins to view details. Open the left drawer to add a new house!</div> -->
+  <div id="map"></div>
 
-<!-- Drawer for Submission -->
-<div id="drawer">
-  <h2>Submit a House</h2>
-  <p>Drop a pin on the map, then fill out the fields below to submit.</p>
-  <input id="description" type="text" placeholder="Description (e.g. lights, spooky theme)">
-  <input id="submittedBy" type="text" placeholder="Your Name">
-  <input id="address" type="text" placeholder="Address (optional)">
-  <button id="submitBtn">Send Location</button>
-</div>
-
-<!-- Map -->
-<div id="map"></div>
-
-<!-- Leaflet JS -->
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-<script>
-/* ==== CONFIG ==== */
-const FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSfmJ4aMSEYq-sT6aLl288_8KmgRVkV3stg-Qlpbcx-MKQtR6A/formResponse"; // Pending
-const SHEET_URL = "https://docs.google.com/spreadsheets/d/1XXYosjOR4jTpBOlUFwPn2l3vhnemOh5REtoMXqW-ymU/gviz/tq?tqx=out:json&gid=631160791"; // Approved
-
-  /* ==== DRAWER TOGGLE ==== */
-const drawer = document.getElementById('drawer');
-const toggleBtn = document.getElementById('drawerToggle');
-
-toggleBtn.addEventListener('click', () => {
-  drawer.classList.toggle('open');
-
-  // Change button text depending on drawer state
-  if (drawer.classList.contains('open')) {
-    toggleBtn.textContent = '✖'; // X to close
-  } else {
-    toggleBtn.textContent = 'Submit a New House'; // original text
-  }
-});
-
-
-/* ==== INIT MAP ==== */
-const map = L.map('map').setView([39.5, -98.35], 4);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: '&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
-}).addTo(map);
-
-let marker = null;
-map.on('click', e => {
-  if (marker) map.removeLayer(marker);
-  marker = L.marker(e.latlng).addTo(map);
-  marker.bindPopup("🎃 Selected location").openPopup();
-});
-
-/* ==== LOAD APPROVED PINS ==== */
-
-async function loadApprovedPins() {
-  try {
-    const response = await fetch(SHEET_URL);
-    const text = await response.text();
-
-    // Google Sheets JSON is wrapped in a function call, remove that
-    const jsonText = text.match(/google\.visualization\.Query\.setResponse\((.*)\);/s)[1];
-    const data = JSON.parse(jsonText);
-
-    const rows = data.table.rows;
-
-    rows.forEach(row => {
-      const name = row.c[1]?.v || "";          // Your Name
-      const description = row.c[2]?.v || "";   // Description
-      const address = row.c[3]?.v || "";       // Address
-      const lat = row.c[4]?.v ? parseFloat(row.c[4].v) : null;
-      const lng = row.c[5]?.v ? parseFloat(row.c[5].v) : null;
-
-      if (lat && lng) {
-        L.marker([lat, lng]).addTo(map)
-          .bindPopup(`<b>${description}</b><br>${address}<br>Submitted by: ${name}`);
-      }
-    });
-
-  } catch(err) {
-    console.error("Failed to load pins:", err);
-  }
-}
-
-// Call it after map initialization
-loadApprovedPins();
-
-
-
-/* ==== SUBMIT HANDLER ==== */
-document.getElementById("submitBtn").addEventListener("click", async () => {
-  const description = document.getElementById("description").value.trim();
-  const submittedBy = document.getElementById("submittedBy").value.trim();
-  const address = document.getElementById("address").value.trim();
-
-  if (!description || !submittedBy) {
-    alert("Please fill in Description and Your Name.");
-    return;
-  }
-  if (!marker) {
-    alert("Drop a pin on the map first!");
-    return;
-  }
-
-  const lat = marker.getLatLng().lat;
-  const lng = marker.getLatLng().lng;
-
-  const formData = new FormData();
-  formData.append("entry.871862830", description); // replace with your Form entry IDs
-  formData.append("entry.956493276", submittedBy);
-  formData.append("entry.1089082775", address);
-  formData.append("entry.1905521699", lat);
-  formData.append("entry.408058304", lng);
-
-  try {
-    await fetch(FORM_URL, { method: "POST", mode: "no-cors", body: formData });
-    alert("Location sent! Your selection will be added after approval.");
-    document.getElementById("description").value = "";
-    document.getElementById("submittedBy").value = "";
-    document.getElementById("address").value = "";
-    if(marker) map.removeLayer(marker);
-    marker = null;
-  } catch(err) {
-    console.error("Submission failed:", err);
-    alert("Error connecting to Google Form.");
-  }
-});
-</script>
-
+  <script src="script.js"></script>
 </body>
 </html>
