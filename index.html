@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Haunted Map Finder</title>
   
-  <!-- Leaflet styles & script -->
+  <!-- Leaflet CSS & JS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
@@ -17,16 +17,26 @@
     <h1>🎃 Halloween Decorations Finder 🎃</h1>
   </header>
 
-  <button id="toggleDrawer">Add a Location</button>
+  <!-- Drawer Toggle Button -->
+  <button id="drawerToggle">Submit a New House!</button>
 
-  <div id="drawer">
+  <!-- Drawer Form -->
+  <div id="drawer" class="drawer">
     <h2>Add Your Spooky Spot</h2>
-    <label>Name: <input type="text" id="name" /></label>
-    <label>Description: <input type="text" id="description" /></label>
-    <label>Address: <input type="text" id="address" /></label>
-    <button id="submit">Submit</button>
+
+    <label for="submittedBy">Your Name:</label>
+    <input type="text" id="submittedBy" placeholder="e.g., The Smith Family" />
+
+    <label for="description">Description:</label>
+    <input type="text" id="description" placeholder="e.g., Haunted graveyard display" />
+
+    <label for="address">Address:</label>
+    <input type="text" id="address" placeholder="123 Elm Street, Springfield" />
+
+    <button id="submitBtn">Submit</button>
   </div>
 
+  <!-- Map Container -->
   <div id="map"></div>
 
   <script src="script.js"></script>
