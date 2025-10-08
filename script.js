@@ -18,15 +18,16 @@ const selectedIcon = L.icon({
 });
 
 /* ==== DRAWER TOGGLE ==== */
-const drawer = document.getElementById('drawer');
-const toggleBtn = document.getElementById('toggleDrawer'); // ✅ matches HTML
+document.addEventListener("DOMContentLoaded", () => {
+  const toggleBtn = document.getElementById('drawerToggle');
+  const drawer = document.getElementById('drawer');
 
-toggleBtn.addEventListener('click', () => {
-  drawer.classList.toggle('open');
-  toggleBtn.textContent = drawer.classList.contains('open')
-    ? '✖ Close'
-    : 'Submit a New House!';
-});
+  toggleBtn.addEventListener('click', () => {
+    drawer.classList.toggle('open');
+    toggleBtn.textContent = drawer.classList.contains('open')
+      ? '✖ Close'
+      : 'Submit a New House!';
+  });
 
 
 
