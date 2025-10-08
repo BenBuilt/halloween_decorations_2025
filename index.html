@@ -8,7 +8,6 @@
 <!-- Leaflet CSS -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 <style>
-/* ==== BODY & HEADER ==== */
 body {
   font-family: 'Comic Sans MS', cursive, sans-serif;
   background-color: #1a1a1a;
@@ -24,20 +23,9 @@ header {
   text-align: center;
 }
 
-header h1 {
-  margin: 0;
-  color: orange;
-  text-shadow: 2px 2px #550000;
-  font-size: 1.5em;
-}
+header h1 { margin: 0; color: orange; text-shadow: 2px 2px #550000; font-size: 1.5em; }
+header p { margin: 5px 0 0 0; font-size: 1em; color: #ffb347; }
 
-header p {
-  margin: 5px 0 0 0;
-  font-size: 1em;
-  color: #ffb347;
-}
-
-/* ==== DRAWER ==== */
 #drawer {
   position: fixed;
   top: 0;
@@ -53,15 +41,8 @@ header p {
   overflow-y: auto;
 }
 
-#drawer.open {
-  left: 0;
-}
-
-#drawer h2 {
-  color: orange;
-  margin-top: 0;
-}
-
+#drawer.open { left: 0; }
+#drawer h2 { color: orange; margin-top: 0; }
 #drawer input[type="text"] {
   width: 100%;
   padding: 8px;
@@ -72,7 +53,6 @@ header p {
   color: #fff;
 }
 
-/* Submit button */
 #submitBtn {
   width: 100%;
   padding: 12px;
@@ -91,7 +71,6 @@ header p {
   transform: scale(1.05);
 }
 
-/* Drawer toggle button */
 #drawerToggle {
   position: fixed;
   top: 20px;
@@ -105,7 +84,6 @@ header p {
   z-index: 1100;
 }
 
-/* ==== MAP ==== */
 #map {
   width: 100%;
   height: calc(100vh - 80px);
@@ -117,14 +95,12 @@ header p {
 
 <header>
   <h1>🎃 Local Halloween Decorations 🎃</h1>
-  <p>Browse the map to find spooky halloween decorations in your area! Click a pin for details.</p>
-  <p>Want to contribute? Click 'Submit a New House!' to add to the list. All submissions are reviewed prior to appearing.</p>
+  <p>Browse the map to find spooky decorations in your area! Click a pin for details.</p>
+  <p>Want to contribute? Click 'Submit a New House!' to add to the list.</p>
 </header>
 
-<!-- Drawer Toggle Button -->
 <button id="drawerToggle">Submit a New House!</button>
 
-<!-- Drawer for Submission -->
 <div id="drawer">
   <h2>Submit a House</h2>
   <p>Drop a pin on the map, then fill out the fields below to submit.</p>
@@ -134,31 +110,22 @@ header p {
   <button id="submitBtn">Send Location</button>
 </div>
 
-<!-- Map -->
 <div id="map"></div>
 
-<!-- Leaflet JS -->
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
-/* ==== CONFIG ==== */
-const FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSfmJ4aMSEYq-sT6aLl288_8KmgRVkV3stg-Qlpbcx-MKQtR6A/formResponse"; 
-const SHEET_URL = "https://docs.google.com/spreadsheets/d/1XXYosjOR4jTpBOlUFwPn2l3vhnemOh5REtoMXqW-ymU/gviz/tq?tqx=out:json&gid=631160791"; 
+const FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSfmJ4aMSEYq-sT6aLl288_8KmgRVkV3stg-Qlpbcx-MKQtR6A/formResponse";
+const SHEET_URL = "https://docs.google.com/spreadsheets/d/1XXYosjOR4jTpBOlUFwPn2l3vhnemOh5REtoMXqW-ymU/gviz/tq?tqx=out:json&gid=631160791";
 
-// ==== CUSTOM ICONS ====
-<a href="https://www.flaticon.com/free-icons/pumpkin" title="pumpkin icons">Pumpkin icons created by Freepik - Flaticon</a>
+// Pumpkin icon for approved pins
 const pumpkinIcon = L.icon({
-  iconUrl: 'images/pumpkin-icon.png', // Path to your pumpkin icon
-  iconSize: [32, 32], // Adjust size as needed
-  iconAnchor: [16, 32], // Anchor point
-  popupAnchor: [0, -32] // Popup position
+  iconUrl: 'images/pumpkin-icon.png', // save a pumpkin PNG in your repo under /images
+  iconSize: [32, 32],
+  iconAnchor: [16, 32],
+  popupAnchor: [0, -32]
 });
 
-// When adding approved pins
-L.marker([lat, lng], { icon: pumpkinIcon })
-  .addTo(map)
-  .bindPopup("Approved Pin Description");
-
-
+// Normal red pin for selected location
 const selectedIcon = L.icon({
   iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684908.png',
   iconSize: [30, 30],
@@ -166,21 +133,21 @@ const selectedIcon = L.icon({
   popupAnchor: [0, -28]
 });
 
-// ==== DRAWER TOGGLE ====
+// Drawer toggle
 const drawer = document.getElementById('drawer');
 const toggleBtn = document.getElementById('drawerToggle');
-
 toggleBtn.addEventListener('click', () => {
   drawer.classList.toggle('open');
   toggleBtn.textContent = drawer.classList.contains('open') ? '✖ Close' : 'Submit a New House!';
 });
 
-// ==== INIT MAP ====
+// Init map
 const map = L.map('map').setView([39.5, -98.35], 4);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
 }).addTo(map);
 
+// User selected marker
 let marker = null;
 map.on('click', e => {
   if (marker) map.removeLayer(marker);
@@ -188,7 +155,7 @@ map.on('click', e => {
   marker.bindPopup("🎃 Selected location").openPopup();
 });
 
-// ==== LOAD APPROVED PINS ====
+// Load approved pins
 async function loadApprovedPins() {
   try {
     const response = await fetch(SHEET_URL);
@@ -196,17 +163,17 @@ async function loadApprovedPins() {
     const match = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);/);
     if (!match) throw new Error("Invalid Google Sheets response format");
     const data = JSON.parse(match[1]);
-
     const rows = data.table.rows;
+
     rows.forEach(row => {
-      const name = row.c[1]?.v || "";          
-      const description = row.c[2]?.v || "";   
-      const address = row.c[3]?.v || "";       
+      const name = row.c[1]?.v || "";
+      const description = row.c[2]?.v || "";
+      const address = row.c[3]?.v || "";
       const lat = row.c[4]?.v ? parseFloat(row.c[4].v) : null;
       const lng = row.c[5]?.v ? parseFloat(row.c[5].v) : null;
 
-      if (lat && lng) {
-        L.marker([lat, lng], { icon: pumpkinIcon }).addTo(map)
+      if(lat && lng){
+        L.marker([lat,lng], {icon: pumpkinIcon}).addTo(map)
           .bindPopup(`<b>${description}</b><br>${address}<br>Submitted by: ${name}`);
       }
     });
@@ -217,17 +184,17 @@ async function loadApprovedPins() {
 
 loadApprovedPins();
 
-// ==== SUBMIT HANDLER ====
+// Submit handler
 document.getElementById("submitBtn").addEventListener("click", async () => {
   const description = document.getElementById("description").value.trim();
   const submittedBy = document.getElementById("submittedBy").value.trim();
   const address = document.getElementById("address").value.trim();
 
-  if (!description || !submittedBy) {
+  if(!description || !submittedBy){
     alert("Please fill in Description and Your Name.");
     return;
   }
-  if (!marker) {
+  if(!marker){
     alert("Drop a pin on the map first!");
     return;
   }
