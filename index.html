@@ -152,7 +152,7 @@ let marker = null;
 map.on('click', e => {
   if (marker) map.removeLayer(marker);
   marker = L.marker(e.latlng, { icon: selectedIcon }).addTo(map);
-  marker.bindPopup("🎃 Selected location").openPopup();
+  marker.bindPopup("🎃 Pin placed\nClick 'Submit a New House' to save your selection").openPopup();
 });
 
 // Load approved pins
