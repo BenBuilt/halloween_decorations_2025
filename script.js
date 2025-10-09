@@ -51,6 +51,9 @@ map.on("click", (e) => {
   // Add marker at clicked location
   marker = L.marker(e.latlng, { icon: selectedIcon }).addTo(map);
 
+  // Flag to ignore programmatic closes
+  let ignorePopupClose = false;
+
   // Create the button element programmatically
   const submitButton = document.createElement("button");
   submitButton.className = "popupSubmitBtn";
@@ -67,19 +70,36 @@ map.on("click", (e) => {
 
   // Attach the event listener to the button directly
   submitButton.addEventListener("click", () => {
+    ignorePopupClose = true;   // ignore the next popupclose event
     drawer.classList.add("open");
     toggleBtn.textContent = "✖ Close";
-    marker.closePopup(); // optional: hide popup
+    marker.closePopup();       // programmatic close
   });
 
   // Create the popup content container
   const popupContainer = document.createElement("div");
   popupContainer.style = "text-align:center;";
-  popupContainer.innerHTML = "🎯 <strong>Pin placed!</strong><br>Click below to fill out details:<br><br>";
+  popupContainer.innerHTML =
+    "🎯 <strong>Pin placed!</strong><br>Click below to fill out details:<br><br>";
   popupContainer.appendChild(submitButton);
 
+  // Bind and open the popup
   marker.bindPopup(popupContainer).openPopup();
+
+  // Remove marker only if user clicks the X
+  marker.on("popupclose", (e) => {
+    if (!ignorePopupClose) {
+      if (marker) {
+        map.removeLayer(marker);
+        marker = null;
+      }
+    } else {
+      ignorePopupClose = false; // reset the flag for next time
+    }
+  });
 });
+
+
 
 
 
