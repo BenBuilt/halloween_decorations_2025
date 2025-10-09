@@ -99,6 +99,82 @@ map.on("click", (e) => {
   });
 });
 
+// Create a custom "Locate Me" control
+const locateControl = L.Control.extend({
+  options: { position: 'bottomright' },
+
+  onAdd: function(map) {
+    // Container for the button
+    const container = L.DomUtil.create('div', 'leaflet-control leaflet-control-locate');
+
+    // Styles for the circular button with plus
+    container.style.width = '40px';
+    container.style.height = '40px';
+    container.style.borderRadius = '50%';
+    container.style.background = 'white';
+    container.style.boxShadow = '0 2px 6px rgba(0,0,0,0.3)';
+    container.style.display = 'flex';
+    container.style.justifyContent = 'center';
+    container.style.alignItems = 'center';
+    container.style.cursor = 'pointer';
+    container.title = 'Zoom to my location';
+    container.style.transition = 'transform 0.2s ease, box-shadow 0.2s ease';
+
+    // Hover effect
+    container.onmouseover = () => {
+      container.style.transform = 'scale(1.1)';
+      container.style.boxShadow = '0 4px 10px rgba(0,0,0,0.4)';
+    };
+    container.onmouseout = () => {
+      container.style.transform = 'scale(1)';
+      container.style.boxShadow = '0 2px 6px rgba(0,0,0,0.3)';
+    };
+
+    // Plus icon (SVG for crisp scaling)
+    container.innerHTML = `
+      <svg viewBox="0 0 24 24" width="24" height="24">
+        <circle cx="12" cy="12" r="12" fill="orange" fill-opacity="0.8"/>
+        <line x1="12" y1="6" x2="12" y2="18" stroke="white" stroke-width="2"/>
+        <line x1="6" y1="12" x2="18" y2="12" stroke="white" stroke-width="2"/>
+      </svg>
+    `;
+
+    // Click behavior
+    container.onclick = () => {
+      if (!navigator.geolocation) {
+        alert("Geolocation is not supported by your browser");
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+
+          // Zoom to location
+          map.setView([lat, lng], 16);
+
+          // Optional: Add a temporary highlight circle
+          const highlight = L.circle([lat, lng], {
+            radius: 50,
+            color: "orange",
+            fillColor: "#ffa500",
+            fillOpacity: 0.5,
+          }).addTo(map);
+
+          // Remove circle after 3 seconds
+          setTimeout(() => map.removeLayer(highlight), 3000);
+        },
+        () => alert("Unable to retrieve your location")
+      );
+    };
+
+    return container;
+  }
+});
+
+// Add control to map
+map.addControl(new locateControl());
 
 
 
